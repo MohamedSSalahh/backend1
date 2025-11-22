@@ -1,29 +1,45 @@
-import express from "express";
-import mongoose from "mongoose";
-import cookieParser from "cookie-parser";
-import jwt from "jsonwebtoken";
-import User from "../models/User.js";
+const express = require("express");
+const mongoose = require("mongoose");
+const cookieParser = require("cookie-parser");
+const authRoutes = require("./routes/authRoutes");
+const todoRoutes = require("./routes/todoRoutes");
+require("dotenv").config();
+const jwt = require("jsonwebtoken");
 
 const app = express();
+
+// Middleware
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
+app.use(express.static("public"));
+app.set("view engine", "ejs");
 
-// Mongo once connection
-if (!global.mongooseConnected) {
-  mongoose.connect(process.env.MONGO_URI)
-  global.mongooseConnected = true;
-}
-
-app.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-  const user = await User.findOne({ email });
-
-  if (!user || user.password !== password)
-    return res.status(401).json({ message: "Invalid credentials" });
-
-  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
-  res.cookie("token", token);
-  res.json({ message: "Logged in" });
+// Make user available in all views
+app.use((req, res, next) => {
+  const token = req.cookies.token;
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      res.locals.user = decoded.id;
+    } catch {
+      res.locals.user = null;
+    }
+  } else {
+    res.locals.user = null;
+  }
+  next();
 });
 
-export default app;
+// Routes
+app.use(authRoutes);
+app.use("/todos", todoRoutes);
+
+// MongoDB
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB Connected ✔"))
+  .catch((err) => console.log(err));
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
