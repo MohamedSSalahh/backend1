@@ -1,0 +1,12 @@
+body {
+  background-color: #f8f9fa;
+}
+.card {
+  border-radius: 10px;
+}
+input.form-control {
+  border-radius: 5px;
+}
+.btn {
+  border-radius: 5px;
+}
