@@ -1,11 +1,12 @@
+// app.js
 const express = require("express");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const authRoutes = require("./routes/authRoutes");
 const todoRoutes = require("./routes/todoRoutes");
 const path = require("path");
-require("dotenv").config();
 const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
 const app = express();
 
@@ -17,7 +18,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-// Make user available
+// Make user available in all views
 app.use((req, res, next) => {
   const token = req.cookies.token;
   if (token) {
@@ -37,4 +38,4 @@ app.use((req, res, next) => {
 app.use(authRoutes);
 app.use("/todos", todoRoutes);
 
-module.exports = app; // 👈 IMPORTANT: export instead of app.listen()
+module.exports = app; // ✅ Export the app only

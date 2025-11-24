@@ -1,5 +1,6 @@
+// lambda.js
 const serverless = require("serverless-http");
-const app = require("../app");
+const app = require("./app"); // path to your app.js
 const mongoose = require("mongoose");
 require("dotenv").config();
 
@@ -19,11 +20,13 @@ async function connectDB() {
   return cached.conn;
 }
 
-module.exports = async (req, res) => {
+// Wrap your app in serverless once
+const handler = serverless(app);
+
+module.exports.handler = async (req, res) => {
   try {
     await connectDB();
-    const handler = serverless(app);
-    return handler(req, res);
+    return handler(req, res); // call serverless handler
   } catch (err) {
     console.error(err);
     res.status(500).send("Internal Server Error");
