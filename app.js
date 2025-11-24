@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const authRoutes = require("./routes/authRoutes");
 const todoRoutes = require("./routes/todoRoutes");
+const path = require("path");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 
@@ -12,8 +13,9 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
-app.use(express.static("public"));
+app.use(express.static(path.join(__dirname, "public")));
 app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
 
 // Make user available
 app.use((req, res, next) => {
