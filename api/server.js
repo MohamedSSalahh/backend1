@@ -3,18 +3,29 @@ const app = require("../app");
 const mongoose = require("mongoose");
 require("dotenv").config();
 
-let isConnected = false;
+let cached = global.mongoose;
+
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
+}
 
 async function connectDB() {
-  if (isConnected) return;
+  if (cached.conn) return cached.conn;
 
-  await mongoose.connect(process.env.MONGO_URI);
-  isConnected = true;
-  console.log("MongoDB Connected ✔");
+  if (!cached.promise) {
+    cached.promise = mongoose.connect(process.env.MONGO_URI).then((mongoose) => mongoose);
+  }
+  cached.conn = await cached.promise;
+  return cached.conn;
 }
 
 module.exports = async (req, res) => {
-  await connectDB();
-  const handler = serverless(app);
-  return handler(req, res);
+  try {
+    await connectDB();
+    const handler = serverless(app);
+    return handler(req, res);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
+  }
 };
