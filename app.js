@@ -15,7 +15,7 @@ app.use(cookieParser());
 app.use(express.static("public"));
 app.set("view engine", "ejs");
 
-// Make user available in all views
+// Make user available
 app.use((req, res, next) => {
   const token = req.cookies.token;
   if (token) {
@@ -35,11 +35,4 @@ app.use((req, res, next) => {
 app.use(authRoutes);
 app.use("/todos", todoRoutes);
 
-// MongoDB
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB Connected ✔"))
-  .catch((err) => console.log(err));
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+module.exports = app; // 👈 IMPORTANT: export instead of app.listen()
