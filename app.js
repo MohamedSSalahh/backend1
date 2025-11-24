@@ -1,4 +1,5 @@
 // app.js
+require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
@@ -6,7 +7,6 @@ const authRoutes = require("./routes/authRoutes");
 const todoRoutes = require("./routes/todoRoutes");
 const path = require("path");
 const jwt = require("jsonwebtoken");
-require("dotenv").config();
 
 const app = express();
 
